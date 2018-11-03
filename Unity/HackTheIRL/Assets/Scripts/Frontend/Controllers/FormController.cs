@@ -36,6 +36,7 @@ public class FormController : Controller
             view.severityDropdown.gameObject.SetActive(true);
             view.headerText.text = "Report a Crime";
         }
+        alertModel.type = type;
     }
 
     private void Update()
@@ -55,19 +56,25 @@ public class FormController : Controller
         else
         {
             view.selectedImage.color = new Color(1, 1, 1, 1);
-            view.selectedImage.sprite = alertModel.image;
         }
     }
 
     public void SelectImage(Texture2D texture)
     {
+        alertModel.image = texture;
         Sprite newSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector3.zero);
-        alertModel.image = newSprite;
+        view.selectedImage.sprite = newSprite;
     }
 
     public void SubmitForm()
     {
         Debug.Log("Submitting Form!");
+        Comms.instance.SubmitForm(alertModel, SubmitFormCallback);
+    }
+
+    void SubmitFormCallback()
+    {
+        Close();
     }
 
     public void SetSeverity(int val)
