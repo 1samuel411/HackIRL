@@ -11,8 +11,12 @@ The app allows users to post reports of animal injuries and pollution they encou
 - Azure Database
 - Azure Web App
 
-# Images
-![alt text](https://samuelarminana.com/u/12018-11-05_19-35-32.mp4.mp4)
-
 # Download
 samuelarminana.com/HackIRL/HackTheIRL.apk
+
+# Images
+![alt text](https://samuelarminana.com/u/12018-11-05_19-49-05.png.png)
+
+![alt text](https://samuelarminana.com/u/12018-11-05_19-48-57.png.png)
+
+![alt text](https://samuelarminana.com/u/12018-11-05_19-48-41.png.png)
