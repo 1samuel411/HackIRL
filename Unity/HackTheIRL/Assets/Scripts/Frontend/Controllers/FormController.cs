@@ -68,6 +68,12 @@ public class FormController : Controller
 
     public void SubmitForm()
     {
+        Close();
+        double alat = Manager.defLat;
+        double alon = Manager.defLon;
+        alertModel.lat = (float)alat;
+        alertModel.lon = (float)alon;
+
         Debug.Log("Submitting Form!");
         Comms.instance.SubmitForm(alertModel, SubmitFormCallback);
     }

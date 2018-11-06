@@ -7,16 +7,19 @@ public class Comms : MonoBehaviour
 {
 
     public static Comms instance;
-    public const string backendURL = "http://localhost:56139";
+    //public const string backendURL = "http://localhost:56139";
+    public const string backendURL = "http://hacktheirl.azurewebsites.net";
 
     private void Start()
     {
         instance = this;
     }
 
+    #region GetImage
     public delegate void GetImageCallback(Texture2D img);
     public void GetImage(string url, GetImageCallback callback)
     {
+        Debug.Log("Getting image from: " + url);
         StartCoroutine(GetImageCoroutine(url, callback));
     }
     IEnumerator GetImageCoroutine(string url, GetImageCallback callback)
@@ -26,7 +29,9 @@ public class Comms : MonoBehaviour
         Texture2D texture = www.texture;
         callback(texture);
     }
+    #endregion
 
+    #region GetAlerts
     public delegate void GetAlertsCallback(AlertModel[] alerts);
     public void GetAlerts(float lat, float lon, GetAlertsCallback callback)
     {
@@ -35,11 +40,20 @@ public class Comms : MonoBehaviour
     IEnumerator GetAlertsCoroutine(float lat, float lon, GetAlertsCallback callback)
     {
         WWWForm form = new WWWForm();
+        double alat = Manager.defLat;
+        double alon = Manager.defLon;
+        form.AddField("lat", alat.ToString());
+        form.AddField("lon", alon.ToString());
         WWW www = new WWW(backendURL + "/API/GetAlerts", form);
         yield return www;
 
-    }
+        AlertModel[] models = JsonConvert.DeserializeObject<AlertModel[]>(www.text);
 
+        callback(models);
+    }
+    #endregion
+
+    #region Submit Form
     public delegate void SubmitFormCallback();
     public void SubmitForm(AlertModel model, SubmitFormCallback callback)
     {
@@ -47,62 +61,58 @@ public class Comms : MonoBehaviour
     }
     IEnumerator SubmitFormCoroutine(AlertModel model, SubmitFormCallback callback)
     {
-        // First, check if user has location service enabled
-        if (!Input.location.isEnabledByUser)
-            yield break;
+        WWWForm form;
+        WWW www;
 
-        // Start service before querying location
-        Input.location.Start();
-
-        // Wait until service initializes
-        int maxWait = 20;
-        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+        if (model.image != null)
         {
-            yield return new WaitForSeconds(1);
-            maxWait--;
-        }
-
-        // Service didn't initialize in 20 seconds
-        if (maxWait < 1)
-        {
-            print("Timed out");
-            yield break;
-        }
-
-        // Connection has failed
-        if (Input.location.status == LocationServiceStatus.Failed)
-        {
-            print("Unable to determine device location");
-            yield break;
+            Debug.Log("------------------- Uploading Image: " + backendURL + "/API/UploadImage");
+            // Upload image
+            form = new WWWForm();
+            form.AddBinaryData("Image", model.image.EncodeToPNG());
+            www = new WWW(backendURL + "/API/UploadImage", form);
+            yield return www;
+            model.imageUrl = www.text;
+            Debug.Log("------------------- Uploaded Image: " + www.text);
         }
         else
         {
-            // Access granted and location value could be retrieved
-            print("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.altitude + " " + Input.location.lastData.horizontalAccuracy + " " + Input.location.lastData.timestamp);
+            model.imageUrl = "null";
         }
 
-        // Upload image
-        WWWForm form = new WWWForm();
-        form.AddBinaryData("Image", model.image.EncodeToPNG());
-        WWW www = new WWW(backendURL + "/API/UploadImage", form);
-        yield return www;
-        model.imageUrl = www.text;
-
         // Upload alert
+        Debug.Log("------------------- Uploading Alert: " + backendURL + "/API/SubmitForm");
         form = new WWWForm();
+        form.AddField("name", model.name);
         form.AddField("imageUrl", model.imageUrl);
-        form.AddField("name", model.imageUrl);
         form.AddField("type", model.type);
-        form.AddField("severity", model.imageUrl);
-        form.AddField("animalType", model.imageUrl);
-        form.AddField("lat", Input.location.lastData.latitude.ToString());
-        form.AddField("lon", Input.location.lastData.longitude.ToString());
+        form.AddField("severity", model.severity);
+        form.AddField("animalType", model.animalType);
+        form.AddField("lat", model.lat.ToString());
+        form.AddField("lon", model.lon.ToString());
         www = new WWW(backendURL + "/API/SubmitForm", form);
         yield return www;
+        Debug.Log("------------------- Uploaded Alert: " + www.text);
         callback();
-
-        // Stop service if there is no need to query location updates continuously
-        Input.location.Stop();
     }
+    #endregion
 
+    #region Respond
+    public delegate void RespondCallback();
+    public void RespondToAlert(int alert, RespondCallback callback)
+    {
+        StartCoroutine(RespondToAlertCoroutine(alert, callback));
+    }
+    IEnumerator RespondToAlertCoroutine(int alert, RespondCallback callback)
+    {
+        Manager.instance.Responded(alert);
+        // Upload alert
+        WWWForm form = new WWWForm();
+        form.AddField("id", alert);
+        WWW www = new WWW(backendURL + "/API/Respond", form);
+        yield return www;
+
+        callback();
+    }
+    #endregion
 }

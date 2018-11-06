@@ -36,5 +36,6 @@ public class MainMenuController : Controller
     public void OpenFaq()
     {
         Toggle();
+        view.faqController.Open();
     }
 }

@@ -14,6 +14,7 @@ public class MainMenuView : View
     public Button faqButton;
 
     public FormController formController;
+    public FaqController faqController;
 
     public Animator expandedAnimator;
 

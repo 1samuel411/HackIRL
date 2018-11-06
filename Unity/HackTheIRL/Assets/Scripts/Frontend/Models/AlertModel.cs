@@ -12,6 +12,8 @@ public class AlertModel : Model
     public int type;
     public int severity;
     public int animalType;
+    public float lat;
+    public float lon;
 
     public AlertModel ()
     {
