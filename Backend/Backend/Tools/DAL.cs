@@ -15,7 +15,7 @@ public class DAL
     {
         if (conn != null)
             return conn;
-        SqlConnection connection = new SqlConnection("Server=tcp:hacktheirldb.database.windows.net,1433;Initial Catalog=HackTheIRL_DB;Persist Security Info=False;User ID=hacktheirl;Password=2BFLQZhZ;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+        SqlConnection connection = new SqlConnection("Server=tcp:hacktheirldb.database.windows.net,1433;Initial Catalog=HackTheIRL_DB;Persist Security Info=False;User ID=hacktheirl;Password={password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
         connection.Open();
         conn = connection;

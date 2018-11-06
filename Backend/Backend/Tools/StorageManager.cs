@@ -17,7 +17,7 @@ public class StorageManager
             name = id + "_" + Guid.NewGuid().ToString() + "_" + DateTime.Now.Second + GetDefaultExtension(file.ContentType);
         }
 
-        CloudStorageAccount storageAcc = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=hacktheirl;AccountKey=p8UMXz22Mfk4Sy/ayNTxpwr8boJoUtzhSJGVaGq8uB3EjesVR8NWmd8gxsc39ujxSx4wDq3tOFkMZ78wc72IdQ==;EndpointSuffix=core.windows.net");
+        CloudStorageAccount storageAcc = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=hacktheirl;AccountKey={key};EndpointSuffix=core.windows.net");
 
         // Create the blob client.
         CloudBlobClient blobClient = storageAcc.CreateCloudBlobClient();
